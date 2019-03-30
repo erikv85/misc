@@ -1,0 +1,32 @@
+# price format: xxxxx.yy                   max_len =   8
+# pieces format: xxxx.yyyy                 max_len =   9
+# date format: yymmdd_HHmm, time optional  max_len =  11
+# account format: abcdefg                  max_len =   7
+# security format: any format, but must be enclosed in quotes, '"'
+#
+# Example:
+#   price     pieces         date  account  security
+#12345.67  1234.5678  700101_abcd  1234567  "SecA"
+#
+# The data begins on the first line after the pattern
+#   ^tab_start:$
+# Field names are in the next line, and after that the
+# actual data begins. The data ends when the pattern
+#   ^tab_end$
+# is encountered.
+
+tab_start:
+   price     pieces         date  account  security
+    1.00    10.0000  190115_1629     acc1  "a"
+    1.50    15.0000  190215_1629     acc1  "b"
+    2.00    25.0000  190315_1629     acc1  "c"
+    1.51    15.0000  190415_1629     acc1  "b"
+    1.01    10       190515_1629     acc1  "a"
+    2.01    25       190615_1629     acc1  "c"
+    2.02    25       190715_1629     acc1  "c"
+    1.52    15       190815_1629     acc1  "b"
+    1.02    10       190915_1629     acc1  "a"
+    1.03    10       191015_1629     acc1  "a"
+    2.03    25       191115_1629     acc1  "c"
+    1.53    15       191215_1629     acc1  "b"
+tab_end
