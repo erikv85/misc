@@ -29,7 +29,7 @@ fields = re.split("\s+", input[fields_start])
 fields = filter(lambda x: len(x) > 0, fields)
 
 data = input[data_start : tab_end]
-sec_map = defaultdict(list) # str -> list<tuple>
+sec_map = defaultdict(list) # str -> list[tuple[float]]
 for line in data:
     divider = line.index('"')
     numeric = line[ : divider].strip()
@@ -41,31 +41,59 @@ for line in data:
     security = line[divider : ].replace('\n', '')
     sec_map[security].append((price, pieces))
 
-if input_file is "dummy-data.txt":
-    exit()
-
 ############################################################
-# TODO: Remaining code has not been documented
+# TODO: Remaining code/behavior has not been documented
 ############################################################
+# list[string] -> ( string -> tuple[string, float] )
+def read_and_get_references(input):
+    ref_start = -1
+    ref_end = -1
+    references = dict()
+    for i in range(0, len(input)):
+        if re.match("^ref_start:$", input[i]):
+            ref_start = i
+        elif ref_start >= 0 and not re.match("^ref_end$", input[i]):
+            ref_res = format_reference_line(input[i])
+            references[ref_res[0]] = (ref_res[1], ref_res[2])
+        elif re.match("^ref_end$", input[i]):
+            break
+    return references
 
-ref_start = tab_end + 2
-ref_end = ref_start + 1
-for i in range(ref_start, len(input)):
-    if re.match("^ref_end$", input[i]):
-        ref_end = i
-        break
 
-refs = input[ref_start + 1 : ref_end]
-references = dict()
-for line in refs:
+# string -> tuple[string, string, float]
+def format_reference_line(line):
     ref_name_start = line.index('"')
     ref_name_end = line[ref_name_start + 1 : ].index('"')
     ref_name = line[ref_name_start : ref_name_end + 2]
     numeric = line[ref_name_end + 2 : ].strip()
     cols = re.split("\s+", numeric)
-    date = cols[0]
-    curr_price = float(cols[1])
-    references[ref_name] = (date, curr_price)
+    return (ref_name, cols[0], float(cols[1]))
+
+references = read_and_get_references(input)
+
+def security_principal(purchases):
+    sec_principal = 0
+    for purchase in purchases:
+        sec_principal += purchase[0] * purchase[1]
+    return sec_principal
+
+def portfolio_principal(portfolio):
+    pf_principal = 0
+    for security in portfolio:
+        pf_principal += security_principal(portfolio[security])
+    return pf_principal
+
+def portfolio_value(portfolio, prices):
+    pf_val = 0
+    for security in portfolio:
+        pf_val += security_value(purchases, price)
+    return pf_val
+
+def security_value(purchases, price):
+    sec_val = 0
+    for purchase in purchases:
+        sec_val += purchase[1] * price
+    return sec_val
 
 report = []
 fmt = "%15s %9.2f, %7.2f%s"
