@@ -86,28 +86,22 @@ def portfolio_principal(portfolio):
 def portfolio_value(portfolio, prices):
     pf_val = 0
     for security in portfolio:
-        pf_val += security_value(purchases, price)
+        pf_val += security_value(portfolio[security], prices[security][1])
     return pf_val
 
 def security_value(purchases, price):
     sec_val = 0
     for purchase in purchases:
-        sec_val += purchase[1] * price
-    return sec_val
+        sec_val += purchase[1]
+    return sec_val * price
 
 report = []
 fmt = "%15s %9.2f, %7.2f%s"
-pf_principal = 0
-pf_curr_value = 0
 diffs = []
 for key in sec_map:
     curr_price = references[key][1]
-    principal = 0
-    total_pieces = 0
-    for x in sec_map[key]:
-        principal += x[0] * x[1]
-        total_pieces += x[1]
-    curr_tot_value = curr_price * total_pieces
+    principal = security_principal(sec_map[key])
+    curr_tot_value = security_value(sec_map[key], curr_price)
     diff = curr_tot_value - principal
     diffs.append(diff)
     percent_gain = diff / principal
@@ -115,9 +109,9 @@ for key in sec_map:
                          curr_tot_value, \
                          percent_gain, \
                          "%"))
-    pf_principal += principal
-    pf_curr_value += curr_tot_value
 
+pf_curr_value = portfolio_value(sec_map, references)
+pf_principal = portfolio_principal(sec_map)
 abs_diffs = map(lambda x: abs(x), diffs)
 abs_pf_diff = reduce(lambda x, y: x + y, abs_diffs)
 for i in range(0, len(abs_diffs)):
@@ -132,4 +126,13 @@ report.append(fmt % ("Portfolio", \
                      pf_percent_gain, \
                      "%"))
 
-print '\n'.join(report)
+final_report = '\n'.join(report)
+
+key = """            "a"     41.60,    0.02% (20.00% of total swing)
+            "b"     92.40,    0.02% (30.00% of total swing)
+            "c"    204.00,    0.01% (50.00% of total swing)
+-----------------------------------
+      Portfolio    338.00,    0.02%"""
+
+print final_report
+print "OK" if final_report == key else "error"
