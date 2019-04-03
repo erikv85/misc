@@ -18,7 +18,7 @@ tab_start = -1
 fields_start = -1
 data_start = -1
 tab_end = -2
-for i in range(0, len(input)):
+for i in range(len(input)):
     if re.match("^tab_start:$", input[i]):
         tab_start = i
     elif re.match("^tab_end$", input[i]):
@@ -56,7 +56,7 @@ def read_and_get_references(input):
     ref_start = -1
     ref_end = -1
     references = dict()
-    for i in range(0, len(input)):
+    for i in range(len(input)):
         if re.match("^ref_start:$", input[i]):
             ref_start = i
         elif ref_start >= 0 and not re.match("^ref_end$", input[i]):
@@ -132,7 +132,7 @@ def make_full_report():
 
     abs_diffs = map(lambda x: abs(x), diffs)
     abs_pf_diff = reduce(lambda x, y: x + y, abs_diffs)
-    for i in range(0, len(abs_diffs)):
+    for i in range(len(abs_diffs)):
         frac = 100 * abs_diffs[i] / abs_pf_diff
         report[i] += " (%5.2f%s of total swing)" % (frac, "%")
 
