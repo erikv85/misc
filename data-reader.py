@@ -27,7 +27,7 @@ def get_data_lines(input):
     return input[data_start : tab_end]
 
 def get_purchases(data):
-    purchase_pattern = re.compile("^\s*([\.0-9]+)\s+([\.0-9]+)\s+([_0-9]+)\s+(\S+)\s+(\"[^\"]+\")$")
+    purchase_pattern = re.compile("^\s*([\.0-9]+)\s+([\.0-9]+)\s+([_0-9]+)\s+(\S+)\s+(\"[^\"]+\")(\s+#.*)?$")
     sec_map = defaultdict(list) # str -> list[tuple[float]]
     for line in data:
         match = re.match(purchase_pattern, line)
