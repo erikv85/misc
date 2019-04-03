@@ -3,54 +3,42 @@
 import re
 from collections import defaultdict
 
-input_file = "dummy-data.txt"
-with open(input_file, "r") as file:
-    input = file.readlines()
-"""
-OOOOOR:
-    input = file.read()
-and then
-    [s.start() for s in re.finditer('\n', input)]
-to get indices of newlines
-"""
+def read_file_lines(input_file):
+    with open(input_file, "r") as file:
+        input = file.readlines()
+    return input
 
-tab_start = -1
-fields_start = -1
-data_start = -1
-tab_end = -2
-for i in range(len(input)):
-    if re.match("^tab_start:$", input[i]):
-        tab_start = i
-    elif re.match("^tab_end$", input[i]):
-        tab_end = i
-        break
+def get_data_lines(input):
+    tab_start = -1
+    data_start = -1
+    tab_end = -2
+    for i in range(len(input)):
+        if re.match("^tab_start:$", input[i]):
+            tab_start = i
+        elif re.match("^tab_end$", input[i]):
+            tab_end = i
+            break
 
-if tab_start < 0 or tab_end <= tab_start + 2:
-    print "no data found"
-    exit(1)
+    if tab_start < 0 or tab_end <= tab_start + 2:
+        print "no data found"
+        exit(1)
 
-fields_start = tab_start + 1
-data_start = tab_start + 2
+    data_start = tab_start + 2
+    return input[data_start : tab_end]
 
-fields = re.split("\s+", input[fields_start])
-fields = filter(lambda x: len(x) > 0, fields)
-
-data = input[data_start : tab_end]
 def get_purchases(data):
+    purchase_pattern = re.compile("^\s*([\.0-9]+)\s+([\.0-9]+)\s+([_0-9]+)\s+(\S+)\s+(\"[^\"]+\")$")
     sec_map = defaultdict(list) # str -> list[tuple[float]]
     for line in data:
-        divider = line.index('"')
-        numeric = line[ : divider].strip()
-        cols = re.split("\s+", numeric)
-        price = float(cols[0])
-        pieces = float(cols[1])
-        date = cols[2]
-        account = cols[3]
-        security = line[divider : ].replace('\n', '')
-        sec_map[security].append((price, pieces))
+        match = re.match(purchase_pattern, line)
+        if match:
+            price = float(match.group(1))
+            pieces = float(match.group(2))
+            date = match.group(3)
+            account = match.group(4)
+            security = match.group(5)
+            sec_map[security].append((price, pieces))
     return sec_map
-
-sec_map = get_purchases(data)
 
 ############################################################
 # TODO: Remaining code/behavior has not been documented
@@ -70,7 +58,6 @@ def read_and_get_references(input):
             break
     return references
 
-
 # string -> tuple[string, string, float]
 def format_reference_line(line):
     ref_name_start = line.index('"')
@@ -79,8 +66,6 @@ def format_reference_line(line):
     numeric = line[ref_name_end + 2 : ].strip()
     cols = re.split("\s+", numeric)
     return (ref_name, cols[0], float(cols[1]))
-
-references = read_and_get_references(input)
 
 # sec_map    : "a" -> [(1.00, 10), (1.01, 10), (1.02, 10), (1.03, 10)]
 # references : "a" -> (190331_0000, 1.04)
@@ -109,7 +94,7 @@ def security_value(purchases, price):
         sec_val += purchase[1]
     return sec_val * price
 
-def make_security_report(sec_name):
+def make_security_report(sec_name, sec_map, references, fmt):
     sec_price = references[sec_name][1]
     sec_principal = security_principal(sec_map[sec_name])
     sec_val = security_value(sec_map[sec_name], sec_price)
@@ -117,19 +102,18 @@ def make_security_report(sec_name):
     percent_gain = 100 * diff / sec_principal
     return fmt % (sec_name, sec_val, percent_gain, "%")
 
-def make_portfolio_report():
+def make_portfolio_report(sec_map, references, fmt):
     pf_val = portfolio_value(sec_map, references)
     pf_principal = portfolio_principal(sec_map)
     pf_diff = pf_val - pf_principal
     pf_percent_gain = 100 * pf_diff / pf_principal
     return fmt % ("Portfolio", pf_val, pf_percent_gain, "%")
 
-fmt = "%15s %9.2f, %7.2f%s"
-def make_full_report():
+def make_full_report(sec_map, references, fmt):
     report = []
     diffs = []
     for key in sec_map:
-        report.append(make_security_report(key))
+        report.append(make_security_report(key, sec_map, references, fmt))
         diff = security_value(sec_map[key], references[key][1]) -\
                 security_principal(sec_map[key])
         diffs.append(diff)
@@ -140,17 +124,28 @@ def make_full_report():
         frac = 100 * abs_diffs[i] / abs_pf_diff
         report[i] += " (%5.2f%s of total swing)" % (frac, "%")
 
-    report.append('-----------------------------------')
-    report.append(make_portfolio_report())
+    report.append('-' * 35)
+    report.append(make_portfolio_report(sec_map, references, fmt))
     return report
 
-final_report = '\n'.join(make_full_report())
+def main():
+    input = read_file_lines("dummy-data.txt")
+    data = get_data_lines(input)
+    sec_map = get_purchases(data)
 
-key = """            "a"     41.60,    2.46% (20.00% of total swing)
+    fmt = "%15s %9.2f, %7.2f%s"
+
+    references = read_and_get_references(input)
+    final_report = '\n'.join(make_full_report(sec_map, references, fmt))
+    print final_report
+    print "OK" if test(final_report) else "error"
+
+def test(report):
+    key = """            "a"     41.60,    2.46% (20.00% of total swing)
             "b"     92.40,    1.65% (30.00% of total swing)
             "c"    204.00,    1.24% (50.00% of total swing)
 -----------------------------------
       Portfolio    338.00,    1.50%"""
+    return report == key
 
-print final_report
-print "OK" if final_report == key else "error"
+main()
