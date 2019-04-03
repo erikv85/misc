@@ -36,17 +36,21 @@ fields = re.split("\s+", input[fields_start])
 fields = filter(lambda x: len(x) > 0, fields)
 
 data = input[data_start : tab_end]
-sec_map = defaultdict(list) # str -> list[tuple[float]]
-for line in data:
-    divider = line.index('"')
-    numeric = line[ : divider].strip()
-    cols = re.split("\s+", numeric)
-    price = float(cols[0])
-    pieces = float(cols[1])
-    date = cols[2]
-    account = cols[3]
-    security = line[divider : ].replace('\n', '')
-    sec_map[security].append((price, pieces))
+def get_purchases(data):
+    sec_map = defaultdict(list) # str -> list[tuple[float]]
+    for line in data:
+        divider = line.index('"')
+        numeric = line[ : divider].strip()
+        cols = re.split("\s+", numeric)
+        price = float(cols[0])
+        pieces = float(cols[1])
+        date = cols[2]
+        account = cols[3]
+        security = line[divider : ].replace('\n', '')
+        sec_map[security].append((price, pieces))
+    return sec_map
+
+sec_map = get_purchases(data)
 
 ############################################################
 # TODO: Remaining code/behavior has not been documented

@@ -6,6 +6,8 @@ object DataReader {
 
   def main(args: Array[String]) {
     val input = fileToStr("dummy-data.txt")
-    println(input)
+    val newlineIndices = input.zipWithIndex.collect {
+      case ('\n', i) => i
+    }
   }
 }
