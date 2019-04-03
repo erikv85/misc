@@ -110,14 +110,14 @@ def make_security_report(sec_name):
     sec_principal = security_principal(sec_map[sec_name])
     sec_val = security_value(sec_map[sec_name], sec_price)
     diff = sec_val - sec_principal
-    percent_gain = diff / sec_principal
+    percent_gain = 100 * diff / sec_principal
     return fmt % (sec_name, sec_val, percent_gain, "%")
 
 def make_portfolio_report():
     pf_val = portfolio_value(sec_map, references)
     pf_principal = portfolio_principal(sec_map)
     pf_diff = pf_val - pf_principal
-    pf_percent_gain = pf_diff / pf_principal
+    pf_percent_gain = 100 * pf_diff / pf_principal
     return fmt % ("Portfolio", pf_val, pf_percent_gain, "%")
 
 fmt = "%15s %9.2f, %7.2f%s"
