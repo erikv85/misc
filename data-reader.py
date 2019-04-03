@@ -8,29 +8,24 @@ def read_file_lines(input_file):
         input = file.readlines()
     return input
 
-def get_data_lines(input):
-    tab_start = -1
-    data_start = -1
-    tab_end = -2
+def get_body_lines(input, start_pat, end_pat):
+    mstart = re.compile(start_pat)
+    mend = re.compile(end_pat)
+    start = -1
+    end = -1
     for i in range(len(input)):
-        if re.match("^tab_start:$", input[i]):
-            tab_start = i
-        elif re.match("^tab_end$", input[i]):
-            tab_end = i
+        if mstart.match(input[i]):
+            start = i
+        elif mend.match(input[i]):
+            end = i
             break
-
-    if tab_start < 0 or tab_end <= tab_start + 2:
-        print "no data found"
-        exit(1)
-
-    data_start = tab_start + 2
-    return input[data_start : tab_end]
+    return input[start : end]
 
 def get_purchases(data):
     purchase_pattern = re.compile("^\s*([\.0-9]+)\s+([\.0-9]+)\s+([_0-9]+)\s+(\S+)\s+(\"[^\"]+\")(\s+#.*)?$")
     sec_map = defaultdict(list) # str -> list[tuple[float]]
     for line in data:
-        match = re.match(purchase_pattern, line)
+        match = purchase_pattern.match(line)
         if match:
             price = float(match.group(1))
             pieces = float(match.group(2))
@@ -44,28 +39,24 @@ def get_purchases(data):
 # TODO: Remaining code/behavior has not been documented
 ############################################################
 # list[string] -> ( string -> tuple[string, float] )
-def read_and_get_references(input):
-    ref_start = -1
-    ref_end = -1
+def get_references(input):
+    date_match = re.match("^\s*([_0-9]+)$", input[0])
+    if date_match:
+        date = date_match.group(1)
+    else:
+        date = "" # TODO: handle properly
     references = dict()
-    for i in range(len(input)):
-        if re.match("^ref_start:$", input[i]):
-            ref_start = i
-        elif ref_start >= 0 and not re.match("^ref_end$", input[i]):
-            ref_res = format_reference_line(input[i])
-            references[ref_res[0]] = (ref_res[1], ref_res[2])
-        elif re.match("^ref_end$", input[i]):
-            break
+    for i in range(1, len(input)):
+        ref_res = format_reference_line(input[i])
+        references[ref_res[0]] = (date, ref_res[1])
     return references
 
-# string -> tuple[string, string, float]
 def format_reference_line(line):
-    ref_name_start = line.index('"')
-    ref_name_end = line[ref_name_start + 1 : ].index('"')
-    ref_name = line[ref_name_start : ref_name_end + 2]
-    numeric = line[ref_name_end + 2 : ].strip()
-    cols = re.split("\s+", numeric)
-    return (ref_name, cols[0], float(cols[1]))
+    match = re.match("^\s*(\"[^\"]+\")\s+([\.0-9]+)$", line)
+    if match:
+        return (match.group(1), float(match.group(2)))
+    else:
+        return ()
 
 # sec_map    : "a" -> [(1.00, 10), (1.01, 10), (1.02, 10), (1.03, 10)]
 # references : "a" -> (190331_0000, 1.04)
@@ -130,12 +121,14 @@ def make_full_report(sec_map, references, fmt):
 
 def main():
     input = read_file_lines("dummy-data.txt")
-    data = get_data_lines(input)
+    data = get_body_lines(input, "^tab_start:$", "^tab_end$")
+    data = data[2 : ]
     sec_map = get_purchases(data)
 
-    fmt = "%15s %9.2f, %7.2f%s"
+    ref_data = get_body_lines(input, "^ref_start:$", "^ref_end$")
+    references = get_references(ref_data[1 : ])
 
-    references = read_and_get_references(input)
+    fmt = "%15s %9.2f, %7.2f%s"
     final_report = '\n'.join(make_full_report(sec_map, references, fmt))
     print final_report
     print "OK" if test(final_report) else "error"
