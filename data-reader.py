@@ -142,11 +142,11 @@ def make_full_report():
 
 final_report = '\n'.join(make_full_report())
 
-key = """            "a"     41.60,    0.02% (20.00% of total swing)
-            "b"     92.40,    0.02% (30.00% of total swing)
-            "c"    204.00,    0.01% (50.00% of total swing)
+key = """            "a"     41.60,    2.46% (20.00% of total swing)
+            "b"     92.40,    1.65% (30.00% of total swing)
+            "c"    204.00,    1.24% (50.00% of total swing)
 -----------------------------------
-      Portfolio    338.00,    0.02%"""
+      Portfolio    338.00,    1.50%"""
 
 print final_report
 print "OK" if final_report == key else "error"
