@@ -94,13 +94,13 @@ def security_value(purchases, price):
         sec_val += purchase[1]
     return sec_val * price
 
-def make_security_report(sec_name, sec_map, references, fmt):
+def make_security_report(sec_name, sec_map, references):
     sec_price = references[sec_name][1]
     sec_principal = security_principal(sec_map[sec_name])
     sec_val = security_value(sec_map[sec_name], sec_price)
     diff = sec_val - sec_principal
     percent_gain = 100 * diff / sec_principal
-    return fmt % (sec_name, sec_val, percent_gain, "%")
+    return (sec_val, percent_gain, "%")
 
 def make_portfolio_report(sec_map, references, fmt):
     pf_val = portfolio_value(sec_map, references)
@@ -113,7 +113,7 @@ def make_full_report(sec_map, references, fmt):
     report = []
     diffs = []
     for key in sec_map:
-        report.append(make_security_report(key, sec_map, references, fmt))
+        report.append(fmt % ((key,) + make_security_report(key, sec_map, references)))
         diff = security_value(sec_map[key], references[key][1]) -\
                 security_principal(sec_map[key])
         diffs.append(diff)
