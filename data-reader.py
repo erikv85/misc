@@ -6,6 +6,13 @@ from collections import defaultdict
 input_file = "dummy-data.txt"
 with open(input_file, "r") as file:
     input = file.readlines()
+"""
+OOOOOR:
+    input = file.read()
+and then
+    [s.start() for s in re.finditer('\n', input)]
+to get indices of newlines
+"""
 
 tab_start = -1
 fields_start = -1
@@ -71,6 +78,9 @@ def format_reference_line(line):
 
 references = read_and_get_references(input)
 
+# sec_map    : "a" -> [(1.00, 10), (1.01, 10), (1.02, 10), (1.03, 10)]
+# references : "a" -> (190331_0000, 1.04)
+
 def security_principal(purchases):
     sec_principal = 0
     for purchase in purchases:
@@ -95,38 +105,42 @@ def security_value(purchases, price):
         sec_val += purchase[1]
     return sec_val * price
 
-report = []
+def make_security_report(sec_name):
+    sec_price = references[sec_name][1]
+    sec_principal = security_principal(sec_map[sec_name])
+    sec_val = security_value(sec_map[sec_name], sec_price)
+    diff = sec_val - sec_principal
+    percent_gain = diff / sec_principal
+    return fmt % (sec_name, sec_val, percent_gain, "%")
+
+def make_portfolio_report():
+    pf_val = portfolio_value(sec_map, references)
+    pf_principal = portfolio_principal(sec_map)
+    pf_diff = pf_val - pf_principal
+    pf_percent_gain = pf_diff / pf_principal
+    return fmt % ("Portfolio", pf_val, pf_percent_gain, "%")
+
 fmt = "%15s %9.2f, %7.2f%s"
-diffs = []
-for key in sec_map:
-    curr_price = references[key][1]
-    principal = security_principal(sec_map[key])
-    curr_tot_value = security_value(sec_map[key], curr_price)
-    diff = curr_tot_value - principal
-    diffs.append(diff)
-    percent_gain = diff / principal
-    report.append(fmt % (key, \
-                         curr_tot_value, \
-                         percent_gain, \
-                         "%"))
+def make_full_report():
+    report = []
+    diffs = []
+    for key in sec_map:
+        report.append(make_security_report(key))
+        diff = security_value(sec_map[key], references[key][1]) -\
+                security_principal(sec_map[key])
+        diffs.append(diff)
 
-pf_curr_value = portfolio_value(sec_map, references)
-pf_principal = portfolio_principal(sec_map)
-abs_diffs = map(lambda x: abs(x), diffs)
-abs_pf_diff = reduce(lambda x, y: x + y, abs_diffs)
-for i in range(0, len(abs_diffs)):
-    frac = 100 * abs_diffs[i] / abs_pf_diff
-    report[i] += " (%5.2f%s of total swing)" % (frac, "%")
+    abs_diffs = map(lambda x: abs(x), diffs)
+    abs_pf_diff = reduce(lambda x, y: x + y, abs_diffs)
+    for i in range(0, len(abs_diffs)):
+        frac = 100 * abs_diffs[i] / abs_pf_diff
+        report[i] += " (%5.2f%s of total swing)" % (frac, "%")
 
-pf_diff = pf_curr_value - pf_principal
-pf_percent_gain = pf_diff / pf_principal
-report.append('-----------------------------------')
-report.append(fmt % ("Portfolio", \
-                     pf_curr_value, \
-                     pf_percent_gain, \
-                     "%"))
+    report.append('-----------------------------------')
+    report.append(make_portfolio_report())
+    return report
 
-final_report = '\n'.join(report)
+final_report = '\n'.join(make_full_report())
 
 key = """            "a"     41.60,    0.02% (20.00% of total swing)
             "b"     92.40,    0.02% (30.00% of total swing)
