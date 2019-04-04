@@ -21,7 +21,7 @@ object DataReader {
 
   def get_purchases(data: Array[String]) = {
     val purchase_pattern =   """\s*([\.0-9]+)\s+([\.0-9]+)\s+([_0-9]+)\s+(\S+)\s+("[^"]+")(\s+#.*)?""".r
-    val sec_map = Map[String, (Double, Double)]()
+    val sec_map = Map[String, (Double, Double)]() // FIXME: wrong! should be Map[String, List[(Double, Double)]]
     for (line <- data) {
       line match {
         case purchase_pattern(price, pieces, _, _, security, _) => sec_map += (security -> (price.toDouble, pieces.toDouble))
