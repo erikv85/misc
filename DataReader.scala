@@ -21,12 +21,12 @@ object DataReader {
 
   def get_purchases(data: Array[String]) = {
     val purchase_pattern =   """\s*([\.0-9]+)\s+([\.0-9]+)\s+([_0-9]+)\s+(\S+)\s+("[^"]+")(\s+#.*)?""".r
-    val sec_map = Map[String, List[(Double, Double)]]() // FIXME: wrong! should be Map[String, List[(Double, Double)]]
+    val sec_map = Map[String, List[(Double, Double)]]()
     for (line <- data) {
       line match {
         case purchase_pattern(price, pieces, _, _, security, _) => {
-          sec_map += (security -> List[(Double, Double)]())
-          sec_map += (security -> ((price.toDouble, pieces.toDouble) :: sec_map(security)))
+          val currList = sec_map.getOrElse(security, List[(Double, Double)]())
+          sec_map += (security -> ((price.toDouble, pieces.toDouble) :: currList))
         }
         case _ => println(s"not match for line $line")
       }
@@ -59,11 +59,11 @@ object DataReader {
   def make_full_report(sec_map:    Map[String, List[(Double, Double)]],
                        references: Map[String, (String, Double)],
                        fmt:        String) = {
-    for (key <- sec_map.keys) {
-      val foo = make_security_report(key, sec_map, references)
-      println(foo)
+    val fullReport = for (key <- sec_map.keys) yield {
+      val sec_report = make_security_report(key, sec_map, references)
+      fmt.format(key, sec_report._1, sec_report._2, sec_report._3)
     }
-    List(1,2)
+    fullReport
   }
 
   def make_security_report(sec_name:   String,
@@ -96,10 +96,8 @@ object DataReader {
     var data = get_body_lines(input, "tab_start:", "tab_end");
     data = data.slice(2, data.length)
     val sec_map = get_purchases(data)
-    //for ((k,v) <- sec_map) printf("key: %s, value: %s\n", k, v)
     val ref_data = get_body_lines(input, "ref_start:", "ref_end")
     val references = get_references(ref_data.slice(1, ref_data.length))
-    //for ((k,v) <- references) printf("key: %s, value: %s\n", k, v)
     val fmt = "%15s %9.2f, %7.2f%s"
     val final_report = make_full_report(sec_map, references, fmt)
     println(final_report.mkString("\n"))
