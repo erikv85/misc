@@ -59,11 +59,26 @@ object DataReader {
   def make_full_report(sec_map:    Map[String, List[(Double, Double)]],
                        references: Map[String, (String, Double)],
                        fmt:        String) = {
-    val fullReport = for (key <- sec_map.keys) yield {
-      val sec_report = make_security_report(key, sec_map, references)
-      fmt.format(key, sec_report._1, sec_report._2, sec_report._3)
+    import scala.collection.mutable.MutableList // :-(
+    var diffs = MutableList[Double]()
+    var fullReport = MutableList[String]()
+    for (key <- sec_map.keys) {
+      val secReport = make_security_report(key, sec_map, references)
+      val diff = security_value(sec_map(key), references(key)._2) - security_principal(sec_map(key))
+      fullReport += fmt.format(key, secReport._1, secReport._2, secReport._3)
+      diffs += diff
     }
-    fullReport
+
+    val abs_diffs = diffs.map(x => Math.abs(x))
+    val abs_pf_diff = abs_diffs.reduce((x,y) => x + y)
+    for (i <- 0 until abs_diffs.length) {
+      val frac = 100 * abs_diffs(i) / abs_pf_diff
+      fullReport(i) = fullReport(i) + " (%5.2f%s of total swing)".format(frac, "%")
+    }
+
+    val pfReport = make_portfolio_report(sec_map, references, fmt)
+    fullReport :+ "-----------------------------------" :+
+      fmt.format("Portfolio", pfReport._1, pfReport._2, pfReport._3)
   }
 
   def make_security_report(sec_name:   String,
@@ -91,6 +106,40 @@ object DataReader {
     sec_val * price
   }
 
+  def make_portfolio_report(sec_map:    Map[String, List[(Double, Double)]],
+                            references: Map[String, (String, Double)],
+                            fmt:        String) = {
+    val pf_val = portfolio_value(sec_map, references)
+    val pf_principal = portfolio_principal(sec_map)
+    val pf_diff = pf_val - pf_principal
+    val pf_percent_gain = 100 * pf_diff / pf_principal
+    (pf_val, pf_percent_gain, "%")
+  }
+
+  def portfolio_value(portfolio: Map[String, List[(Double, Double)]],
+                      prices:    Map[String, (String, Double)]) = {
+    var pf_val = 0.0
+    for (security <- portfolio.keys)
+      pf_val += security_value(portfolio(security), prices(security)._2)
+    pf_val
+  }
+
+  def portfolio_principal(portfolio: Map[String, List[(Double, Double)]]) = {
+    var pf_principal = 0.0
+    for (security <- portfolio.keys)
+      pf_principal += security_principal(portfolio(security))
+    pf_principal
+  }
+
+  def test(report: String) = {
+    val key = """            "b"     92.40,    1.65% (30.00% of total swing)
+            "a"     41.60,    2.46% (20.00% of total swing)
+            "c"    204.00,    1.24% (50.00% of total swing)
+-----------------------------------
+      Portfolio    338.00,    1.50%"""
+    report == key
+  }
+
   def main(args: Array[String]) {
     val input = read_file_lines("dummy-data.txt")
     var data = get_body_lines(input, "tab_start:", "tab_end");
@@ -99,7 +148,11 @@ object DataReader {
     val ref_data = get_body_lines(input, "ref_start:", "ref_end")
     val references = get_references(ref_data.slice(1, ref_data.length))
     val fmt = "%15s %9.2f, %7.2f%s"
-    val final_report = make_full_report(sec_map, references, fmt)
-    println(final_report.mkString("\n"))
+    val final_report = make_full_report(sec_map, references, fmt).mkString("\n")
+    println(final_report)
+    if (test(final_report))
+      println("OK")
+    else
+      println("error")
   }
 }
