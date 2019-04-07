@@ -172,17 +172,16 @@ object DataReader {
       m += (firstField -> tups.toList)
     }
 
-    println("               " + dates.map(s => "%9s".format(s)).mkString("  "))
-    println("------------------------------------")
+    val dateHeader = " " * (15 + 2) + dates.map(s => "%11s".format(s)).mkString("  ")
+    println(dateHeader)
+    println("-" * dateHeader.length)
     for ((k, l) <- m) {
-      print("%15s  ".format(k))
       val sec_principal = security_principal(sec_map(k))
-      for (price <- l) {
+      val percs = for (price <- l) yield {
         val secVal = security_value(sec_map(k), price._2);
-        val perc = 100 * (secVal - sec_principal) / sec_principal
-        print("%5.2f%s  ".format(perc, "%"))
+        100 * (secVal - sec_principal) / sec_principal
       }
-      println()
+      println("%15s  ".format(k) + percs.map(p => "%10.2f%s".format(p, "%")).mkString("  "))
     }
   }
 }
