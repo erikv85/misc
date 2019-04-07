@@ -48,6 +48,23 @@ object DataReader {
     references
   }
 
+  def get_references2(input: Array[String]) = {
+    val references = Map[String, List[(String, Double)]]()
+    val dates = input(0).split("\\s+").filter(d => d.length != 0)
+    val refData = input.tail
+    for (i <- 0 until refData.length) {
+      val line = refData(i)
+      val lastQuote = line.lastIndexOf('"')
+      val firstField = line.substring(0, lastQuote + 1)
+      val fields = line.substring(lastQuote + 1).split("\\s+").filter(d => d.length != 0)
+      val tups = for (i <- 0 until dates.length) yield {
+        (dates(i), fields(i).toDouble)
+      }
+      references += (firstField -> tups.toList)
+    }
+    references
+  }
+
   def format_reference_line(line: String) = {
     val match0 = """\s*("[^"]+")\s+([\.0-9]+)(\s+.*)?""".r
     line match {
@@ -159,19 +176,8 @@ object DataReader {
     println()
 
     val dates = ref_data(1).split("\\s+").filter(d => d.length != 0)
-    val pricelines = ref_data.slice(2, ref_data.length)
-    val m = Map[String, List[(String, Double)]]()
-    for (i <- 0 until pricelines.length) {
-      val line = pricelines(i)
-      val lastQuote = line.lastIndexOf('"')
-      val firstField = line.substring(0, lastQuote + 1)
-      val fields = line.substring(lastQuote + 1).split("\\s+").filter(d => d.length != 0)
-      val tups = for (i <- 0 until dates.length) yield {
-        (dates(i), fields(i).toDouble)
-      }
-      m += (firstField -> tups.toList)
-    }
-
+    val pricelines = ref_data.slice(1, ref_data.length)
+    val m = get_references2(pricelines)
     val dateHeader = " " * (15 + 2) + dates.map(s => "%11s".format(s)).mkString("  ")
     println(dateHeader)
     println("-" * dateHeader.length)
