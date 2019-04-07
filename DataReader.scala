@@ -143,6 +143,23 @@ object DataReader {
     pf_principal
   }
 
+  def makeDateHeader(refData: Array[String]) = {
+    val dates = refData(0).split("\\s+").filter(d => d.length != 0)
+    " " * (15 + 2) + dates.map(s => "%11s".format(s)).mkString("  ")
+  }
+
+  def makeAnotherReport(sec_map:    Map[String, List[(Double, Double)]],
+                        references: Map[String, List[(String, Double)]]) = {
+    for ((k, l) <- references) yield {
+      val sec_principal = security_principal(sec_map(k))
+      val percs = for (price <- l) yield {
+        val secVal = security_value(sec_map(k), price._2);
+        100 * (secVal - sec_principal) / sec_principal
+      }
+      "%15s  ".format(k) + percs.map(p => "%10.2f%s".format(p, "%")).mkString("  ")
+    }
+  }
+
   def test(report: String) = {
     val key = """            "a"     42.00,    3.45% (20.00% of total swing)
             "b"     93.00,    2.31% (30.00% of total swing)
@@ -156,11 +173,14 @@ object DataReader {
     val doTest = args.length < 1
     val inputFile = if (!doTest) args(0) else "dummy-data.txt"
     val input = read_file_lines(inputFile)
+
     var data = get_body_lines(input, "tab_start:", "tab_end");
     val sec_map = get_purchases(data.slice(2, data.length))
+
     val ref_data = get_body_lines(input, "ref_start:", "ref_end")
     val references = get_references(ref_data.slice(1, ref_data.length))
     val latestRefs = getLatestReferences(references)
+
     val fmt = "%15s %9.2f, %7.2f%s"
     val final_report = make_full_report(sec_map, latestRefs, fmt).mkString("\n")
     println(final_report)
@@ -173,19 +193,9 @@ object DataReader {
 
     println()
 
-    val dates = ref_data(1).split("\\s+").filter(d => d.length != 0)
+    val dateHeader = makeDateHeader(ref_data.tail)
     val pricelines = ref_data.slice(1, ref_data.length)
-    val m = get_references(pricelines)
-    val dateHeader = " " * (15 + 2) + dates.map(s => "%11s".format(s)).mkString("  ")
-    println(dateHeader)
-    println("-" * dateHeader.length)
-    for ((k, l) <- m) {
-      val sec_principal = security_principal(sec_map(k))
-      val percs = for (price <- l) yield {
-        val secVal = security_value(sec_map(k), price._2);
-        100 * (secVal - sec_principal) / sec_principal
-      }
-      println("%15s  ".format(k) + percs.map(p => "%10.2f%s".format(p, "%")).mkString("  "))
-    }
+    val foobar = makeAnotherReport(sec_map, references)
+    println(dateHeader + "\n" + "-" * dateHeader.length + "\n" + foobar.toList.sortWith(_ < _).mkString("\n"))
   }
 }
