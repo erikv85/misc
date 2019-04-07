@@ -35,20 +35,6 @@ object DataReader {
   }
 
   def get_references(input: Array[String]) = {
-    val date_match = """\s*([_0-9]+)""".r
-    val date = input(0) match {
-      case date_match(thedate) => thedate
-      case _ => ""
-    }
-    val references = Map[String, (String, Double)]()
-    for (line <- input.tail) {
-      val ref_res = format_reference_line(line)
-      references += (ref_res._1 -> (date, ref_res._2))
-    }
-    references
-  }
-
-  def get_references2(input: Array[String]) = {
     val references = Map[String, List[(String, Double)]]()
     val dates = input(0).split("\\s+").filter(d => d.length != 0)
     val refData = input.tail
@@ -63,6 +49,15 @@ object DataReader {
       references += (firstField -> tups.toList)
     }
     references
+  }
+
+  def getLatestReferences(references: Map[String, List[(String, Double)]]) = {
+    val latest = Map[String, (String, Double)]()
+    for ((k,l) <- references) {
+      val sortedList = l.sortWith(_._1 > _._1)
+      latest += (k -> sortedList(0))
+    }
+    latest
   }
 
   def format_reference_line(line: String) = {
@@ -158,26 +153,29 @@ object DataReader {
   }
 
   def main(args: Array[String]) {
-    val inputFile = if (args.length > 0) args(0) else "dummy-data.txt"
+    val doTest = args.length < 1
+    val inputFile = if (!doTest) args(0) else "dummy-data.txt"
     val input = read_file_lines(inputFile)
     var data = get_body_lines(input, "tab_start:", "tab_end");
-    data = data.slice(2, data.length)
-    val sec_map = get_purchases(data)
+    val sec_map = get_purchases(data.slice(2, data.length))
     val ref_data = get_body_lines(input, "ref_start:", "ref_end")
     val references = get_references(ref_data.slice(1, ref_data.length))
+    val latestRefs = getLatestReferences(references)
     val fmt = "%15s %9.2f, %7.2f%s"
-    val final_report = make_full_report(sec_map, references, fmt).mkString("\n")
+    val final_report = make_full_report(sec_map, latestRefs, fmt).mkString("\n")
     println(final_report)
-    if (test(final_report))
-      println("OK")
-    else
-      println("error")
+    if (doTest) {
+      if (test(final_report))
+        println("OK")
+      else
+        println("error")
+    }
 
     println()
 
     val dates = ref_data(1).split("\\s+").filter(d => d.length != 0)
     val pricelines = ref_data.slice(1, ref_data.length)
-    val m = get_references2(pricelines)
+    val m = get_references(pricelines)
     val dateHeader = " " * (15 + 2) + dates.map(s => "%11s".format(s)).mkString("  ")
     println(dateHeader)
     println("-" * dateHeader.length)
