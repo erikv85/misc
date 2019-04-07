@@ -144,11 +144,11 @@ object DataReader {
   }
 
   def test(report: String) = {
-    val key = """            "a"     41.60,    2.46% (20.00% of total swing)
-            "b"     92.40,    1.65% (30.00% of total swing)
-            "c"    204.00,    1.24% (50.00% of total swing)
+    val key = """            "a"     42.00,    3.45% (20.00% of total swing)
+            "b"     93.00,    2.31% (30.00% of total swing)
+            "c"    205.00,    1.74% (50.00% of total swing)
 -----------------------------------
-      Portfolio    338.00,    1.50%"""
+      Portfolio    340.00,    2.10%"""
     report == key
   }
 
