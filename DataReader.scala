@@ -75,8 +75,10 @@ object DataReader {
     var diffs = MutableList[Double]()
     var fullReport = MutableList[String]()
     for (key <- sec_map.keys) {
-      val secReport = make_security_report(key, sec_map, references)
-      val diff = security_value(sec_map(key), references(key)._2) - security_principal(sec_map(key))
+      val currSecMap = sec_map(key)
+      val currReference = references(key)
+      val secReport = make_security_report(currSecMap, currReference)
+      val diff = security_value(currSecMap, currReference._2) - security_principal(currSecMap)
       fullReport += fmt.format(key, secReport._1, secReport._2, secReport._3)
       diffs += diff
     }
@@ -93,29 +95,22 @@ object DataReader {
       fmt.format("Portfolio", pfReport._1, pfReport._2, pfReport._3)
   }
 
-  def make_security_report(sec_name:   String,
-                           sec_map:    Map[String, List[(Double, Double)]],
-                           references: Map[String, (String, Double)]) = {
-    val sec_price = references(sec_name)._2
-    val sec_principal = security_principal(sec_map(sec_name))
-    val sec_val = security_value(sec_map(sec_name), sec_price)
+  def make_security_report(sec_map:    List[(Double, Double)],
+                           references: (String, Double)) = {
+    val sec_price = references._2
+    val sec_principal = security_principal(sec_map)
+    val sec_val = security_value(sec_map, sec_price)
     val diff = sec_val - sec_principal
     val percent_gain = 100 * diff / sec_principal
     (sec_val, percent_gain, "%")
   }
 
   def security_principal(purchases: List[(Double, Double)]) = {
-    var sec_principal = 0.0
-    for (purchase <- purchases)
-      sec_principal += purchase._1 * purchase._2
-    sec_principal
+    purchases.map { case (a, b) => a * b }.sum
   }
 
   def security_value(purchases: List[(Double, Double)], price: Double) = {
-    var sec_val = 0.0
-    for (purchase <- purchases)
-      sec_val += purchase._2
-    sec_val * price
+    price * purchases.map { case (a, b) => b }.sum
   }
 
   def make_portfolio_report(sec_map:    Map[String, List[(Double, Double)]],
