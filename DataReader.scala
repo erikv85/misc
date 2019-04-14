@@ -79,7 +79,7 @@ object DataReader {
       val currReference = references(key)
       val secReport = make_security_report(currSecMap, currReference)
       val diff = security_value(currSecMap, currReference._2) - security_principal(currSecMap)
-      fullReport += fmt.format(key, secReport._1, secReport._2, secReport._3)
+      fullReport += fmt.format(key, secReport._1, secReport._2, "%")
       diffs += diff
     }
 
@@ -90,9 +90,9 @@ object DataReader {
       fullReport(i) = fullReport(i) + " (%5.2f%s of total swing)".format(frac, "%")
     }
 
-    val pfReport = make_portfolio_report(sec_map, references, fmt)
+    val pfReport = make_portfolio_report(sec_map, references)
     fullReport.sortWith(_ < _) :+ "-----------------------------------" :+
-      fmt.format("Portfolio", pfReport._1, pfReport._2, pfReport._3)
+      fmt.format("Portfolio", pfReport._1, pfReport._2, "%")
   }
 
   def make_security_report(sec_map:    List[(Double, Double)],
@@ -102,7 +102,7 @@ object DataReader {
     val sec_val = security_value(sec_map, sec_price)
     val diff = sec_val - sec_principal
     val percent_gain = 100 * diff / sec_principal
-    (sec_val, percent_gain, "%")
+    (sec_val, percent_gain)
   }
 
   def security_principal(purchases: List[(Double, Double)]) = {
@@ -114,13 +114,12 @@ object DataReader {
   }
 
   def make_portfolio_report(sec_map:    Map[String, List[(Double, Double)]],
-                            references: Map[String, (String, Double)],
-                            fmt:        String) = {
+                            references: Map[String, (String, Double)]) = {
     val pf_val = portfolio_value(sec_map, references)
     val pf_principal = portfolio_principal(sec_map)
     val pf_diff = pf_val - pf_principal
     val pf_percent_gain = 100 * pf_diff / pf_principal
-    (pf_val, pf_percent_gain, "%")
+    (pf_val, pf_percent_gain)
   }
 
   def portfolio_value(portfolio: Map[String, List[(Double, Double)]],
@@ -189,8 +188,8 @@ object DataReader {
     println()
 
     val dateHeader = makeDateHeader(ref_data.tail)
-    val pricelines = ref_data.slice(1, ref_data.length)
     val foobar = makeAnotherReport(sec_map, references)
-    println(dateHeader + "\n" + "-" * dateHeader.length + "\n" + foobar.toList.sortWith(_ < _).mkString("\n"))
+    val foolist = dateHeader :: "-" * dateHeader.length :: foobar.toList.sortWith(_ < _)
+    println(foolist.mkString("\n"))
   }
 }
