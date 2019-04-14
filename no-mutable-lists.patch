@@ -1,0 +1,39 @@
+diff --git a/DataReader.scala b/DataReader.scala
+index 6db717b..3187ac0 100644
+--- a/DataReader.scala
++++ b/DataReader.scala
+@@ -71,24 +71,23 @@ object DataReader {
+   def make_full_report(sec_map:    Map[String, List[(Double, Double)]],
+                        references: Map[String, (String, Double)],
+                        fmt:        String) = {
+-    import scala.collection.mutable.MutableList // :-(
+-    var diffs = MutableList[Double]()
+-    var fullReport = MutableList[String]()
+-    for (key <- sec_map.keys) {
++    val glorp = for (key <- sec_map.keys) yield {
+       val currSecMap = sec_map(key)
+       val currReference = references(key)
+       val secReport = make_security_report(currSecMap, currReference)
+       val diff = security_value(currSecMap, currReference._2) - security_principal(currSecMap)
+-      fullReport += fmt.format(key, secReport._1, secReport._2, "%")
+-      diffs += diff
++      (diff, fmt.format(key, secReport._1, secReport._2, "%"))
+     }
+ 
+-    val abs_diffs = diffs.map(x => Math.abs(x))
++    val abs_diffs = glorp.map { case (a,b) => Math.abs(a) }
++    val tmpReport = glorp.map { case (a,b) => b }.toList
+     val abs_pf_diff = abs_diffs.reduce((x,y) => x + y)
+-    for (i <- 0 until abs_diffs.length) {
+-      val frac = 100 * abs_diffs(i) / abs_pf_diff
+-      fullReport(i) = fullReport(i) + " (%5.2f%s of total swing)".format(frac, "%")
+-    }
++    val fullReport = abs_diffs.zipWithIndex.map {
++      case (d, i) => {
++        val frac = 100 * d / abs_pf_diff
++        tmpReport(i) + " (%5.2f%s of total swing)".format(frac, "%")
++      }
++    }.toList
+ 
+     val pfReport = make_portfolio_report(sec_map, references)
+     fullReport.sortWith(_ < _) :+ "-----------------------------------" :+
