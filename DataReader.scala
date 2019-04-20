@@ -71,13 +71,13 @@ object DataReader {
   def make_full_report(sec_map:    Map[String, List[(Double, Double)]],
                        references: Map[String, (String, Double)],
                        fmt:        String) = {
-    val glorp = for (key <- sec_map.keys) yield {
+    val glorp = (for (key <- sec_map.keys) yield {
       val currSecMap = sec_map(key)
       val currReference = references(key)
       val secReport = make_security_report(currSecMap, currReference)
       val diff = security_value(currSecMap, currReference._2) - security_principal(currSecMap)
       (diff, fmt.format(key, secReport._1, secReport._2, "%"))
-    }
+    }).toList
 
     val abs_diffs = glorp.map { case (a,b) => Math.abs(a) }
     val tmpReport = glorp.map { case (a,b) => b }.toList
