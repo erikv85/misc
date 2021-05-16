@@ -4,6 +4,8 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 
+const { MongoClient } = require("mongodb")
+
 const app = express()
 /* With this we can serve files. Uncomment line below and try
  * curl localhost:3000/<file>
@@ -15,9 +17,19 @@ app.use(bodyParser.json())
 
 const port = 3000
 
+const client = new MongoClient("mongodb://localhost:27017", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+
 // curl localhost:3000
 app.get('/', (req, res) => {
-    res.send("Hello world!\n")
+    client.connect()
+    const database = client.db("sample_mflix")
+    const movies = database.collection("movies")
+    const query = { title: "Back to the future" }
+    const movie = movies.findOne(query) // :: Promise
+    movie.then(val => res.send(val))
 })
 
 // curl localhost:3000/wut
