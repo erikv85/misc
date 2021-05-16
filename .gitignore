@@ -1,3 +1,5 @@
 *.swp
 *.class
 tags
+
+scala/target/
