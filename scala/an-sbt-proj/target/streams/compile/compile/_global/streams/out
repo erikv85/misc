@@ -1,0 +1,56 @@
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:46:16: object Helpers is not a member of package example[0m
+[0m[[0m[31merror[0m] [0m[0mimport example.Helpers._[0m
+[0m[[0m[31merror[0m] [0m[0m               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:72:23: value results is not a member of org.mongodb.scala.SingleObservable[Void][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.drop().results()[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:83:31: value results is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.result.InsertOneResult][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.insertOne(doc).results()[0m
+[0m[[0m[31merror[0m] [0m[0m                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:86:29: value printResults is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find.first().printResults()[0m
+[0m[[0m[31merror[0m] [0m[0m                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:99:102: value headResult is not a member of org.mongodb.scala.Observable[Long][0m
+[0m[[0m[31merror[0m] [0m[0m    println(s"total # of documents after inserting 100 small ones (should be 101):  ${insertAndCount.headResult()}")[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                                                     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:101:31: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find().first().printHeadResult()[0m
+[0m[[0m[31merror[0m] [0m[0m                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:105:45: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find(equal("i", 71)).first().printHeadResult()[0m
+[0m[[0m[31merror[0m] [0m[0m                                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:108:34: value printResults is not a member of org.mongodb.scala.FindObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find(gt("i", 50)).printResults()[0m
+[0m[[0m[31merror[0m] [0m[0m                                 ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:111:54: value printResults is not a member of org.mongodb.scala.FindObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find(and(gt("i", 50), lte("i", 100))).printResults()[0m
+[0m[[0m[31merror[0m] [0m[0m                                                     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:114:64: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find(exists("i")).sort(descending("i")).first().printHeadResult()[0m
+[0m[[0m[31merror[0m] [0m[0m                                                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:117:55: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0m    collection.find().projection(excludeId()).first().printHeadResult()[0m
+[0m[[0m[31merror[0m] [0m[0m                                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:127:10: value printResults is not a member of org.mongodb.scala.AggregateObservable[org.mongodb.scala.Document][0m
+[0m[[0m[31merror[0m] [0m[0mpossible cause: maybe a semicolon is missing before `value printResults'?[0m
+[0m[[0m[31merror[0m] [0m[0m        .printResults()[0m
+[0m[[0m[31merror[0m] [0m[0m         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:130:61: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.result.UpdateResult][0m
+[0m[[0m[31merror[0m] [0m[0m        collection.updateOne(equal("i", 10), set("i", 110)).printHeadResult("Update Result: ")[0m
+[0m[[0m[31merror[0m] [0m[0m                                                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:133:60: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.result.UpdateResult][0m
+[0m[[0m[31merror[0m] [0m[0m        collection.updateMany(lt("i", 100), inc("i", 100)).printHeadResult("Update Result: ")[0m
+[0m[[0m[31merror[0m] [0m[0m                                                           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:136:47: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.result.DeleteResult][0m
+[0m[[0m[31merror[0m] [0m[0m        collection.deleteOne(equal("i", 110)).printHeadResult("Delete Result: ")[0m
+[0m[[0m[31merror[0m] [0m[0m                                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:139:46: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[org.mongodb.scala.result.DeleteResult][0m
+[0m[[0m[31merror[0m] [0m[0m        collection.deleteMany(gte("i", 100)).printHeadResult("Delete Result: ")[0m
+[0m[[0m[31merror[0m] [0m[0m                                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:142:52: value printHeadResult is not a member of org.mongodb.scala.SingleObservable[String][0m
+[0m[[0m[31merror[0m] [0m[0m        collection.createIndex(Document("i" -> 1)).printHeadResult("Create Index Result: %s")[0m
+[0m[[0m[31merror[0m] [0m[0m                                                   ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/erik/my-work/misc/scala/an-sbt-proj/src/main/scala/example/Hello.scala:145:27: value results is not a member of org.mongodb.scala.SingleObservable[Void][0m
+[0m[[0m[31merror[0m] [0m[0m        collection.drop().results()[0m
+[0m[[0m[31merror[0m] [0m[0m                          ^[0m
+[0m[[0m[31merror[0m] [0m[0m18 errors found[0m
