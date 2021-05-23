@@ -2,9 +2,9 @@
 
 \usepackage{courier} % font for listings
 \usepackage{listings}
-\lstset{
-    basicstyle=\ttfamily,
-    language=C
+\lstset{ basicstyle=\ttfamily
+       , language=C
+       , showstringspaces=false % otherwise you'll get ugly space markers
 }
 
 \title{TeX Template}
@@ -28,8 +28,18 @@ This is the abstract.
 
 \section{First section}
 
-This is part of the first section.
+Include code from file:
 \newline
 \lstinputlisting{listings_demo.c}
+
+Write some code directly in tex, as seen in \ref{someccode}:
+\newline
+\begin{lstlisting}[caption={This is a caption}, label=someccode]
+#include<stdio.h>
+
+void main() {
+    printf("Then it looks like this.\n");
+}
+\end{lstlisting}
 
 \end{document}
