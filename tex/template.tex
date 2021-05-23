@@ -1,0 +1,35 @@
+\documentclass{article}
+
+\usepackage{courier} % font for listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily,
+    language=C
+}
+
+\title{TeX Template}
+\author{Erik Vesterlund} % TODO: email
+%\date{} % uncomment to remove date
+
+\begin{document}
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\begin{abstract}
+This is the abstract.
+\end{abstract}
+
+\newpage
+
+\section{First section}
+
+This is part of the first section.
+\newline
+\lstinputlisting{listings_demo.c}
+
+\end{document}
