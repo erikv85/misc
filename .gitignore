@@ -6,3 +6,8 @@ scala/target/
 
 web/*/node_modules/
 web/*/package-lock.json
+
+*.aux
+*.toc
+*.log
+*.pdf
