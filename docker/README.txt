@@ -1,3 +1,5 @@
+# General instructions
+
 # Installing Docker:
 
 # (see online docs)
