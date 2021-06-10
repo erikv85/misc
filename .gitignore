@@ -11,3 +11,5 @@ web/*/package-lock.json
 *.toc
 *.log
 *.pdf
+
+.vagrant/
